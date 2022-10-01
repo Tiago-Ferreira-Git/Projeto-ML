@@ -23,3 +23,5 @@ plt.plot(X,X.dot(beta),"b.")
 plt.show()
 plt.pause(3)
 plt.close('all')
+
+# teste bro
