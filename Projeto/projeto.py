@@ -19,7 +19,16 @@ def linear_regression(X,Y):
     beta_aux = np.linalg.inv( beta_aux )
 
     beta = (beta_aux.dot(X2.transpose())).dot(Y2)
-    print(f"Sum of squared errors {mean_squared_error(Y2, X2.dot(beta))} my linear regression")
+    print(f"Sum of squared errors {mean_squared_error(Y2, X2.dot(beta))} my centered linear regression")
+
+n,m=np.shape(X)
+x0=np.ones((n,1))
+Xn=np.hstack((x0,X))
+
+print(np.shape(Xn))
+
+beta = ((np.linalg.inv((Xn.T).dot(Xn))).dot(Xn.T)).dot(Y)
+print(f"Sum of squared errors {mean_squared_error(Y, Xn.dot(beta))} my linear regression with beta0")
 
 
 lasso_vector = np.arange(0.1,2, 0.1)
