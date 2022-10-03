@@ -63,6 +63,11 @@ plt.show()
 plt.close('all')
 """
 
+"""
+sklearn.model_selection.cross_val_score
+cv: int, to specify the number of folds in a (Stratified)KFold,
+perguntar scoring
+"""
 
 
 
