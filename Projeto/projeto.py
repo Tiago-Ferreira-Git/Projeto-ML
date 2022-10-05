@@ -50,18 +50,17 @@ linear_regression(X,Y)
 
 
 scores = cross_val_score(regr, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-print(np.mean(np.absolute(scores)))
 print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
 
 #Lasso mean squared errors
-"""
+
 plt.figure(1) 
 plt.xlabel("Lasso lambda") 
 plt.ylabel("Mean squared error")
 plt.plot(lasso_vector,mean_squared_error_x)
 plt.show()
 plt.close('all')
-"""
+
 
 """
 sklearn.model_selection.cross_val_score
