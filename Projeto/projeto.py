@@ -1,3 +1,4 @@
+from scipy.io import savemat
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import linear_model
@@ -30,48 +31,45 @@ def linear_regression(X,Y):
     print(f"Sum of squared errors {mean_squared_error(Y, Xn.dot(beta))} my linear regression with beta0")
 
 
-lasso_vector = np.arange(0.000,0.02, 0.001)
+lasso_vector = np.arange(0.005,0.02, 0.001)
 mean_squared_error_x = np.empty(lasso_vector.shape)
+betas = np.arange(10.0*lasso_vector.shape[0])
+betas = betas.reshape((10, lasso_vector.shape[0]))
+betas = np.zeros_like(betas)
 for i,alpha in enumerate(lasso_vector):
     reg = linear_model.Lasso(alpha)
     reg.fit(X, Y)
     Y_pred = reg.predict(X)
-    beta = reg.sparse_coef_
-    betab = reg.coef_
+    beta = reg.coef_
+    for j,beta_i in enumerate(beta):
+        betas[j][i] = beta_i
+   
     mean_squared_error_x[i] = mean_squared_error(Y, Y_pred)
     scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-    print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error_x[i]} for alpha = {alpha}")
+    #print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error_x[i]} for alpha = {alpha}")
     #print(beta)
-    print(betab)
     
     
+
 regr = linear_model.LinearRegression()
 regr.fit(X, Y)
+print(regr.coef_)
 Y_pred = regr.predict(X)
-print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression")
+#print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression")
 
 
 linear_regression(X,Y)
 
 
 scores = cross_val_score(regr, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
-
-#Lasso mean squared errors
-
-plt.figure(1) 
-plt.xlabel("Lasso lambda") 
-plt.ylabel("Mean squared error")
-plt.plot(lasso_vector,mean_squared_error_x)
-plt.show()
-plt.close('all')
+#print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
 
 
-"""
-sklearn.model_selection.cross_val_score
-cv: int, to specify the number of folds in a (Stratified)KFold,
-perguntar scoring
-"""
+to_plot = {"lasso_vector": lasso_vector,"mean_squared_error_x": mean_squared_error_x, "label": "experiment"}
+savemat("to_plot_lasso_mse.mat",to_plot)
+to_plot = {"lasso_vector": lasso_vector,"betas": betas, "label": "experiment"}
+savemat("to_plot_lasso_betas.mat",to_plot)
+
 
 
 
