@@ -30,16 +30,21 @@ def linear_regression(X,Y):
     print(f"Sum of squared errors {mean_squared_error(Y, Xn.dot(beta))} my linear regression with beta0")
 
 
-lasso_vector = np.arange(0.1,2, 0.1)
+lasso_vector = np.arange(0.000,0.02, 0.001)
 mean_squared_error_x = np.empty(lasso_vector.shape)
 for i,alpha in enumerate(lasso_vector):
     reg = linear_model.Lasso(alpha)
     reg.fit(X, Y)
     Y_pred = reg.predict(X)
+    beta = reg.sparse_coef_
+    betab = reg.coef_
     mean_squared_error_x[i] = mean_squared_error(Y, Y_pred)
     scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-    print(f"LeaveOneOut score: {np.mean(np.absolute(scores))} for alpha equal to {alpha}")
-
+    print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error_x[i]} for alpha = {alpha}")
+    #print(beta)
+    print(betab)
+    
+    
 regr = linear_model.LinearRegression()
 regr.fit(X, Y)
 Y_pred = regr.predict(X)
@@ -50,18 +55,17 @@ linear_regression(X,Y)
 
 
 scores = cross_val_score(regr, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-print(np.mean(np.absolute(scores)))
 print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
 
 #Lasso mean squared errors
-"""
+
 plt.figure(1) 
 plt.xlabel("Lasso lambda") 
 plt.ylabel("Mean squared error")
 plt.plot(lasso_vector,mean_squared_error_x)
 plt.show()
 plt.close('all')
-"""
+
 
 """
 sklearn.model_selection.cross_val_score
