@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import LeaveOneOut,cross_val_score
 cv = LeaveOneOut()
 plt.close('all')
@@ -39,6 +40,10 @@ Y_pred = regr.predict(X)
 #print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression")
 
 
+#polynomial
+
+
+
 
 scores = cross_val_score(regr, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
 print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
@@ -57,3 +62,23 @@ savemat("to_plot_loo_score.mat",to_plot)
 
 
 
+#Outliers
+X = np.load('Xtrain_Regression2.npy')
+Y = np.load('Ytrain_Regression2.npy')
+X_test = np.load('Xtest_Regression2.npy')
+std = np.std(Y, dtype=np.float64)
+mean = np.mean(X, dtype=np.float64)
+print(mean,std)
+delete_values = list()
+
+for i,value in enumerate(Y):
+    if  mean-std < value < mean+std: #68% integral de uma gaussiana
+        continue
+    else:
+        delete_values.append(i)
+X = np.delete(X, delete_values,axis=0)
+Y = np.delete(Y, delete_values)
+reg = linear_model.Lasso(0.018)
+reg.fit(X, Y)
+Y_test = reg.predict(X_test)
+print(Y_test)
