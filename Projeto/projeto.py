@@ -10,12 +10,17 @@ plt.close('all')
 X = np.load('Xtrain_Regression1.npy')
 Y = np.load('Ytrain_Regression1.npy')
 
+#polynomial
+poly = PolynomialFeatures(degree=3)
+X=poly.fit_transform(X)
 
+(c,l)=np.shape(X)
+l=float(l)
 #Lasso
-lasso_vector = np.arange(0.005,0.02, 0.001)
+lasso_vector = np.arange(0.001,0.02, 0.001)
 mean_squared_error_x = np.empty(lasso_vector.shape)
-betas = np.arange(10.0*lasso_vector.shape[0])
-betas = betas.reshape((10, lasso_vector.shape[0]))
+betas = np.arange(l*lasso_vector.shape[0])
+betas = betas.reshape((int(l), lasso_vector.shape[0]))
 betas = np.zeros_like(betas)
 loo_score = np.empty(lasso_vector.shape[0] + 1 )
 for i,alpha in enumerate(lasso_vector):
@@ -37,10 +42,20 @@ for i,alpha in enumerate(lasso_vector):
 regr = linear_model.LinearRegression()
 regr.fit(X, Y)
 Y_pred = regr.predict(X)
-#print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression")
+print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression")
 
 
 #polynomial
+
+poly = PolynomialFeatures(degree=2)
+X = np.load('Xtrain_Regression1.npy')
+PX=poly.fit_transform(X)
+
+regr = linear_model.LinearRegression()
+regr.fit(PX, Y)
+Y_pred = regr.predict(PX)
+scores = cross_val_score(regr, PX, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
+print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error(Y, Y_pred)} for PX")
 
 
 
@@ -49,14 +64,14 @@ scores = cross_val_score(regr, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_
 print(f"LeaveOneOut score for linear regression {np.mean(np.absolute(scores))}")
 loo_score[-1] = np.mean(np.absolute(scores))
 
-to_plot = {"lasso_vector": lasso_vector,"mean_squared_error_x": mean_squared_error_x, "label": "experiment"}
-savemat("to_plot_lasso_mse.mat",to_plot)
-to_plot = {"lasso_vector": lasso_vector,"betas": betas, "label": "experiment"}
-savemat("to_plot_lasso_betas.mat",to_plot)
-
-
-to_plot = {"lasso_vector": np.append(lasso_vector,"linear"),"loo_score": loo_score, "label": "experiment"}
-savemat("to_plot_loo_score.mat",to_plot)
+# to_plot = {"lasso_vector": lasso_vector,"mean_squared_error_x": mean_squared_error_x, "label": "experiment"}
+# savemat("to_plot_lasso_mse.mat",to_plot)
+# to_plot = {"lasso_vector": lasso_vector,"betas": betas, "label": "experiment"}
+# savemat("to_plot_lasso_betas.mat",to_plot)
+# 
+# 
+# to_plot = {"lasso_vector": np.append(lasso_vector,"linear"),"loo_score": loo_score, "label": "experiment"}
+# savemat("to_plot_loo_score.mat",to_plot)
 
 
 
@@ -81,4 +96,4 @@ Y = np.delete(Y, delete_values)
 reg = linear_model.Lasso(0.018)
 reg.fit(X, Y)
 Y_test = reg.predict(X_test)
-print(Y_test)
+#print(Y_test)
