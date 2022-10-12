@@ -66,12 +66,7 @@ Y_pred = regr.predict(X)
 X = np.load('Xtrain_Regression2.npy')
 Y = np.load('Ytrain_Regression2.npy')
 X_test = np.load('Xtest_Regression2.npy')
-stdy = np.std(Y, dtype=np.float64)
-meany = np.mean(Y, dtype=np.float64)
-stdx = np.std(X, dtype=np.float64)
-meanx = np.mean(X, dtype=np.float64)
-print(meany,stdy)
-print(meanx,stdx)
+
 delete_values = list()
 
 erro_vector= np.arange(0.77,1.57, 0.01)
@@ -99,7 +94,7 @@ for n in range(0,20):
         else:
             continue
         pass
-    #print(Y[maxerrori],maxerror)
+    print(maxerror)
     Y=np.delete(Y,maxerrori,axis=0)
     X=np.delete(X,maxerrori,0)
     pass
