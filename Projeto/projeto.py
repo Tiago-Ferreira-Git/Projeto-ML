@@ -12,23 +12,23 @@ Y = np.load('Ytrain_Regression1.npy')
 
 
 #Lasso
-lasso_vector = np.arange(0.005,0.02, 0.001)
-mean_squared_error_x = np.empty(lasso_vector.shape)
-betas = np.arange(10.0*lasso_vector.shape[0])
-betas = betas.reshape((10, lasso_vector.shape[0]))
-betas = np.zeros_like(betas)
-loo_score = np.empty(lasso_vector.shape[0] + 1 )
-for i,alpha in enumerate(lasso_vector):
-    reg = linear_model.Lasso(alpha)
-    reg.fit(X, Y)
-    Y_pred = reg.predict(X)
-    beta = reg.coef_
-    for j,beta_i in enumerate(beta):
-        betas[j][i] = beta_i
-    
-    mean_squared_error_x[i] = mean_squared_error(Y, Y_pred)
-    scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
-    loo_score[i] = np.mean(np.absolute(scores))
+# lasso_vector = np.arange(0.005,0.02, 0.001)
+# mean_squared_error_x = np.empty(lasso_vector.shape)
+# betas = np.arange(10.0*lasso_vector.shape[0])
+# betas = betas.reshape((10, lasso_vector.shape[0]))
+# betas = np.zeros_like(betas)
+# loo_score = np.empty(lasso_vector.shape[0] + 1 )
+# for i,alpha in enumerate(lasso_vector):
+#     reg = linear_model.Lasso(alpha)
+#     reg.fit(X, Y)
+#     Y_pred = reg.predict(X)
+#     beta = reg.coef_
+#     for j,beta_i in enumerate(beta):
+#         betas[j][i] = beta_i
+#     
+#     mean_squared_error_x[i] = mean_squared_error(Y, Y_pred)
+#     scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
+#     loo_score[i] = np.mean(np.absolute(scores))
     #print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error_x[i]} for alpha = {alpha}")
 
     
@@ -66,26 +66,49 @@ Y_pred = regr.predict(X)
 X = np.load('Xtrain_Regression2.npy')
 Y = np.load('Ytrain_Regression2.npy')
 X_test = np.load('Xtest_Regression2.npy')
-std = np.std(Y, dtype=np.float64)
-mean = np.mean(Y, dtype=np.float64)
-print(mean,std)
+stdy = np.std(Y, dtype=np.float64)
+meany = np.mean(Y, dtype=np.float64)
+stdx = np.std(X, dtype=np.float64)
+meanx = np.mean(X, dtype=np.float64)
+print(meany,stdy)
+print(meanx,stdx)
 delete_values = list()
 
-erro_vector= np.arange(0.77,1.57, 0.05)
+erro_vector= np.arange(0.77,1.57, 0.01)
 
-for n,error in enumerate(erro_vector):
-    X = np.load('Xtrain_Regression2.npy')
-    Y = np.load('Ytrain_Regression2.npy')
-    delete_values = list()
-    for i,value in enumerate(Y):
-        if  mean-error*std < abs(value) < mean+error*std: #68% integral de uma gaussiana
-            continue
-        else:
-            delete_values.append(i)
-    X = np.delete(X, delete_values,axis=0)
-    Y = np.delete(Y, delete_values)
-    reg = linear_model.Lasso(0.017)
+X = np.load('Xtrain_Regression2.npy')
+Y = np.load('Ytrain_Regression2.npy')
+maxerror=0
+error=[]
+for n in range(0,20):
+    error=[]
+    maxerror=0
+    maxerrori=0
+    reg = linear_model.Lasso(0.0017)
     reg.fit(X, Y)
     Y_pred = reg.predict(X)
     Y_test = reg.predict(X_test)
-    print(f"MSE: {mean_squared_error(Y, Y_pred)} for +/- {error}std")
+    scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
+    print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error(Y, Y_pred)} -> Y {Y.shape} , X {X.shape}")
+    for i,value in enumerate(Y):
+        error.append((Y[i]-Y_pred[i])**2)
+        #print(error[i])
+        if maxerror < error[i]:
+            maxerror=error[i]
+            maxerrori=i
+        else:
+            continue
+        pass
+    #print(Y[maxerrori],maxerror)
+    Y=np.delete(Y,maxerrori,axis=0)
+    X=np.delete(X,maxerrori,0)
+    pass
+    
+reg = linear_model.Lasso(0.0017)
+reg.fit(X, Y)
+Y_pred = reg.predict(X)
+Y_test = reg.predict(X_test)
+scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
+print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error(Y, Y_pred)} -> Y {Y.shape} , X {X.shape}")
+
+
