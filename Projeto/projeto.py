@@ -64,30 +64,37 @@ print(f"Sum of squared errors {mean_squared_error(Y, Y_pred)} sklearn regression
 
 
 #Outliers
-X = np.load('Xtrain_Regression2.npy')
-Y = np.load('Ytrain_Regression2.npy')
 X_test = np.load('Xtest_Regression2.npy')
-
-
 X = np.load('Xtrain_Regression2.npy')
 Y = np.load('Ytrain_Regression2.npy')
 
 def remove_outliers(x, y):
-    mse=10000
-    while mse > 0.022:
+    maxerror=10000
+    mse = 0
+    while True:
         error=[]
         regr = linear_model.LinearRegression()
         regr.fit(x, y)
         y_pred = regr.predict(x)
         scores = cross_val_score(regr, x, y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
         mse = mean_squared_error(y, y_pred)
-        print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mse} -> Y {y.shape} , X {x.shape}")
         for i,value in enumerate(x): error.append((y[i]-y_pred[i])**2)
         maxerror = max(error)
         maxerrori = error.index(maxerror)
+        if maxerror < 10*mse: break
         y=np.delete(y,maxerrori,axis=0)
         x=np.delete(x,maxerrori,axis=0)
+        print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mse} | Maxerror: {maxerror}-> Y {y.shape} , X {x.shape}")
+        
     return x,y
 X,Y = remove_outliers(X,Y)
 print(Y.shape)
-study_lasso(X,Y,0.05,0.1, 0.001)  
+#study_lasso(X,Y,0.001,0.01, 0.0001)  
+
+
+reg = linear_model.Lasso(alpha = 0.006)
+reg.fit(X, Y)
+Y_pred = reg.predict(X)
+scores = cross_val_score(reg, X, Y, scoring='neg_mean_absolute_error',cv=cv, n_jobs=-1)
+print(f"LOO score: {np.mean(np.absolute(scores))} | MSE: {mean_squared_error(Y, Y_pred)}")
+        

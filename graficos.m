@@ -34,18 +34,20 @@ x = strings(1,16);
 for j=1:length(to_plot_loo_score.lasso_vector(:,1))
     if ~strcmp(to_plot_loo_score.lasso_vector(j,:),'linear                          ')
         
-        x(j) = sprintf('\\lambda = %0.3f', str2double(to_plot_loo_score.lasso_vector(j,:)));
+        x(j) = sprintf('\\lambda = %0.4f', str2double(to_plot_loo_score.lasso_vector(j,:)));
     else 
         x(j) = to_plot_loo_score.lasso_vector(j,:);
     end
     x(j) = strtrim(x(j));
 end
 figure
-bar(y)
+%bar(y)
+plot(y)
 ax = gca;
-ax.XTick = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]; 
+ax.XTick = 1:1:length(x); 
 ax.XTickLabels = x;
 ax.XTickLabelRotation = 45;
+
 hold on
 grid on
 ylabel('LOO scores')
