@@ -21,6 +21,7 @@ y = np.load('numpy_files/ytrain_Classification1.npy')
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=0)
 print(X.shape)
 X_alt = X.reshape((8273,30, 30,3))
+Y_alt = y
 print(X_alt.shape)
 
 #Bayes Classification
@@ -42,8 +43,8 @@ print("Number of mislabeled points out of a total %d points : %d"
 
 
 #keras image classification
-dense = keras.layers.Dense(units=16)
-inputs = keras.Input(shape=(30, 30, 3))
+#dense = keras.layers.Dense(units=16)
+inputs = keras.Input(shape=(X_train.shape))
 
 
 x = CenterCrop(height=30, width=30)(inputs)
@@ -55,7 +56,7 @@ x = layers.Dense(128, activation="relu")(x)
 x = layers.Dense(128, activation="relu")(x)
 
 # Apply global average pooling to get flat feature vectors
-x = layers.GlobalAveragePooling2D()(x)
+#x = layers.GlobalAveragePooling2D()(x)
 
 # Add a dense classifier on top
 num_classes = 10
@@ -64,8 +65,8 @@ outputs = layers.Dense(num_classes, activation="softmax")(x)
 model = keras.Model(inputs=inputs, outputs=outputs)
 
 
-model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
-model.fit(X_train, y_train, batch_size=32, epochs=10)
+model.compile(optimizer='adam', loss='categorical_crossentropy')
+model.fit(X_train, y_train, batch_size=1, epochs=1)
 
-predictions = model.predict(X_test)
+#predictions = model.predict(X_test)
 #print(predictions.shape)
