@@ -55,17 +55,11 @@ print("Number of mislabeled points out of a total %d points : %d"
 
 
 #keras image classification
-#dense = keras.layers.Dense(units=16)
-# X_alt = X_alt[:64,:,:,:]
-# X_alt = X_alt.astype(np.float32)
-# Y_alt = Y_alt[:64]
-# Y_alt = Y_alt.astype(np.float32)
-# print(X_alt.shape,Y_alt.shape)
 
 X_train = (X_train.reshape((X_train.shape[0],30, 30,3)))
 X_test = (X_test.reshape((X_test.shape[0],30, 30,3)))
 #y_train = y_train.astype(np.float32)
-print(X_train.shape,X_train.dtype,y_train.shape)
+#print(X_train.shape,X_train.dtype,y_train.shape)
 
 inputs = keras.Input(shape=(30,30,3))
 
@@ -88,10 +82,11 @@ num_classes = 1
 outputs = layers.Dense(num_classes, activation="softmax")(x)
 
 model = keras.Model(inputs=inputs, outputs=outputs)
-model.compile(optimizer='adam', loss='categorical_crossentropy')
+model.compile(optimizer="adam", loss='categorical_crossentropy')
+#model.compile(optimizer="sgd", loss='categorical_crossentropy')
 model.fit(X_train, y_train, batch_size=32, epochs=10)
 
-predictions = model.predict(X_test)
-#print(predictions.shape)
-print("Number of mislabeled points out of a total %d points : %d"
-      % (X_test.shape[0], (y_test != predictions).sum()))
+y_pred = model.predict(X_test)
+y_pred = y_pred.reshape(y_pred.shape[0])
+print(y_pred.shape,y_test.shape)
+print("Number of mislabeled points out of a total %d points : %d" % (X_test.shape[0], (y_test != y_pred).sum()))
