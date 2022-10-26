@@ -11,6 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
+from sklearn.metrics import f1_score
 
 #Redes neuronais
 import tensorflow as tf
@@ -30,7 +31,7 @@ from sklearn.inspection import DecisionBoundaryDisplay
 X = np.load('numpy_files/Xtrain_Classification1.npy')
 y = np.load('numpy_files/ytrain_Classification1.npy')
 #print(y.shape)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 print(X.shape)
 X_alt = X.reshape((8273,30, 30,3))
 Y_alt = y
@@ -41,7 +42,7 @@ gnb = GaussianNB()
 y_pred = gnb.fit(X_train, y_train).predict(X_test)
 print("Number of mislabeled points out of a total %d points : %d"
       % (X_test.shape[0], (y_test != y_pred).sum()))
-
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
 
 #Knn Classification
 n_neighbors = 20
@@ -52,6 +53,7 @@ clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 print("Number of mislabeled points out of a total %d points : %d"
       % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
 
 
 #keras image classification
@@ -88,5 +90,6 @@ model.fit(X_train, y_train, batch_size=32, epochs=10)
 
 y_pred = model.predict(X_test)
 y_pred = y_pred.reshape(y_pred.shape[0])
-print(y_pred.shape,y_test.shape)
+#print(y_pred.shape,y_test.shape)
 print("Number of mislabeled points out of a total %d points : %d" % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
