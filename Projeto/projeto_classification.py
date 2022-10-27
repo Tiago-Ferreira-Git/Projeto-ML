@@ -1,3 +1,4 @@
+from scipy.io import savemat
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 """
@@ -22,11 +23,15 @@ from tensorflow.keras.layers import CenterCrop,Rescaling
 
 #Bayes classification
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB,MultinomialNB ,ComplementNB,BernoulliNB,CategoricalNB
 
 #KNN Classification
 from sklearn import neighbors, datasets
 from sklearn.inspection import DecisionBoundaryDisplay
+
+#SVM
+from sklearn import svm
+
 
 ohe = OneHotEncoder()
 X = np.load('numpy_files/Xtrain_Classification1.npy')
@@ -35,11 +40,45 @@ y = np.load('numpy_files/ytrain_Classification1.npy')
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 print(X.shape)
 
-#Bayes Classification
+#Bayes Classification Gaussian
 gnb = GaussianNB()
 y_pred = gnb.fit(X_train, y_train).predict(X_test)
-print("Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
+print("Gaussian - Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
 print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+#Bayes Classification Multinomial
+mnb = MultinomialNB()
+y_pred = mnb.fit(X_train, y_train).predict(X_test)
+print("Multinomial - Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+#Bayes Classification Complement
+cnb = ComplementNB()
+y_pred = cnb.fit(X_train, y_train).predict(X_test)
+print("Complement - Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+
+
+#Bayes Classification Bernoulli
+bnb = BernoulliNB()
+y_pred = bnb.fit(X_train, y_train).predict(X_test)
+print("Bernoulli - Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+
+# #Bayes Classification Categorical - it assumes that X is encoded
+# cnb = CategoricalNB()
+# y_pred = cnb.fit(X_train, y_train).predict(X_test)
+# print("Categorical - Number of mislabeled points out of a total %d points : %d"  % (X_test.shape[0], (y_test != y_pred).sum()))
+# print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+
 
 #Knn Classification
 n_neighbors = 20
@@ -48,11 +87,25 @@ weights = "uniform"
 clf = neighbors.KNeighborsClassifier(n_neighbors, weights=weights)
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
-print("Number of mislabeled points out of a total %d points : %d"
+print("KNN - Number of mislabeled points out of a total %d points : %d"
       % (X_test.shape[0], (y_test != y_pred).sum()))
 print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
 
-print(y_pred,y_test)
+
+#SVM
+
+clf = svm.SVC()
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+print("SVM - Number of mislabeled points out of a total %d points : %d"
+      % (X_test.shape[0], (y_test != y_pred).sum()))
+print(f"F1 score: {f1_score(y_test, y_pred, average='binary')}")
+
+
+
+
+#CNN
+
 #keras image classification
 
 X_train = (X_train.reshape((X_train.shape[0],30, 30,3)))
@@ -81,12 +134,13 @@ x = layers.GlobalAveragePooling2D()(x)
 
 # Add a dense classifier on top
 num_classes = 2
+x = layers.Dropout(0.5)(x)
 outputs = layers.Dense(num_classes, activation="softmax")(x)
 
 
 model = keras.Model(inputs=inputs, outputs=outputs)
 #model.compile(optimizer="adam", loss='categorical_crossentropy')
-model.compile(optimizer="sgd", loss='binary_crossentropy')
+model.compile(optimizer="sgd", loss='binary_crossentropy',metrics=["accuracy"])
 model.fit(X_train, y_train, batch_size=32, epochs=10)
 #model.summary()
 
@@ -94,9 +148,12 @@ y_pred = model.predict(X_test)
 y_pred = ohe.inverse_transform(y_pred)
 y_test = y_test.reshape(1,y_test.shape[0])
 y_pred = y_pred.reshape(1,y_pred.shape[0])
+y_test = (np.array(y_test)[0])
+y_pred = (np.array(y_pred)[0])
+# print(y_test)
+# to_cmp = {"y_test": y_test,"y_pred": y_pred, "label": "experiment"}
+# savemat("mat_files/to_cmp.mat",to_cmp)
+# print("Number of mislabeled points out of a total %d points : %d" % (X_test.shape[0], (y_test != y_pred).sum()))
 
-
-print(np.array(y_pred)[0],y_test.dtype)
-print("Number of mislabeled points out of a total %d points : %d" % (X_test.shape[0], (y_test != y_pred).sum()))
-print(f"F1 score: {f1_score(np.array(y_test)[0], np.array(y_pred)[0], average='binary')}")
+# print(f"F1 score: {f1_score(y_test,y_pred, average='binary')}")
 
