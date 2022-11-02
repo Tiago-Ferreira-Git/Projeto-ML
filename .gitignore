@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /Projeto/lib/*
 
 /Projeto/numpy_files/Xtrain_Classification1_altered.npy
+/Projeto/numpy_files/Xtrain_Classification2_altered_90.npy
 
 teste
+=======
+/Projeto/lib/*
+>>>>>>> parent of 95c1c08 (gui)
